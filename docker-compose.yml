@@ -1,0 +1,120 @@
+services:
+  app:
+    image: markoshust/magento-php:8.4-fpm-0
+    container_name: magento-app
+    volumes:
+      - .:/var/www/html
+      - sockdata:/sock
+    environment:
+      COMPOSER_MEMORY_LIMIT: "-1"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      opensearch:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    networks:
+      - magento
+
+  nginx:
+    image: markoshust/magento-nginx:1.24-0
+    container_name: magento-nginx
+    ports:
+      - "80:8000"
+      - "443:8443"
+    volumes:
+      - .:/var/www/html:cached
+      - ./docker/nginx/conf:/etc/nginx/conf.d:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+      - sockdata:/sock
+    depends_on:
+      - app
+    networks:
+      - magento
+
+  db:
+    image: mysql:8.0
+    container_name: magento-db
+    command: >
+      --max_allowed_packet=256M
+      --log_bin_trust_function_creators=1
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: "${MYSQL_ROOT_PASSWORD:-root}"
+      MYSQL_DATABASE: magento
+      MYSQL_USER: magento
+      MYSQL_PASSWORD: magento
+    volumes:
+      - dbdata:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 180s
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    networks:
+      - magento
+
+  redis:
+    image: redis:7-alpine
+    container_name: magento-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - magento
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: magento-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: magento
+      RABBITMQ_DEFAULT_PASS: magento
+    ports:
+      - "${RABBITMQ_PORT:-5672}:5672"
+      - "${RABBITMQ_MGMT_PORT:-15672}:15672"
+    networks:
+      - magento
+
+  opensearch:
+    image: opensearchproject/opensearch:2.11.1
+    container_name: magento-opensearch
+    environment:
+      discovery.type: single-node
+      plugins.security.disabled: "true"
+      OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+      DISABLE_INSTALL_DEMO_CONFIG: "true"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+    ports:
+      - "${OPENSEARCH_PORT:-9200}:9200"
+    volumes:
+      - opensearchdata:/usr/share/opensearch/data
+    networks:
+      - magento
+
+  mailcatcher:
+    image: sj26/mailcatcher:v0.9.0
+    container_name: magento-mailcatcher
+    ports:
+      - "${MAILCATCHER_PORT:-1080}:1080"
+    networks:
+      - magento
+
+volumes:
+  dbdata:
+  opensearchdata:
+  sockdata:
+
+networks:
+  magento:
+    driver: bridge
