@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+
+    <head>
+        <css src="Dg_FlashAlert::css/flash-alert.css"/>
+    </head>
+
+    <body>
+        <referenceContainer name="product.info.main">
+            <block class="Magento\Framework\View\Element\Template"
+                   name="flash.alert.banner" template="Dg_FlashAlert::alert.phtml">
+                <arguments>
+                    <argument name="view_model" xsi:type="object">Dg\FlashAlert\ViewModel\FlashAlert</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+
+        <move element="flash.alert.banner" destination="product.info.main" before="page.main.title" />
+    </body>
+</page>

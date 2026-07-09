@@ -1,0 +1,41 @@
+<?php
+declare(strict_types=1);
+
+use Dg\FlashAlert\ViewModel\FlashAlert;
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Element\Template;
+
+/**
+ * Flash Alert Banner Template
+ *
+ * @var Template $block
+ * @var Escaper $escaper
+ * @var FlashAlert $viewModel
+ */
+
+$viewModel = $block->getViewModel();
+
+if (!$viewModel->shouldDisplay()) {
+    return;
+}
+
+$backgroundColor = $viewModel->getBackgroundColor();
+$textColor = $viewModel->getTextColor();
+$fontSize = $viewModel->getFontSize();
+$borderRadius = $viewModel->getBorderRadius();
+$alertText = $viewModel->getAlertText();
+?>
+
+<div class="flash-alert-banner"
+     style="
+         --flash-alert-bg: <?= $escaper->escapeHtmlAttr($backgroundColor) ?>;
+         --flash-alert-color: <?= $escaper->escapeHtmlAttr($textColor) ?>;
+         --flash-alert-font-size: <?= $escaper->escapeHtmlAttr($fontSize) ?>;
+         --flash-alert-radius: <?= $escaper->escapeHtmlAttr($borderRadius) ?>;
+         ">
+    <div class="flash-alert-banner__inner">
+        <span class="flash-alert-banner__text">
+            <?= $escaper->escapeHtml($alertText) ?>
+        </span>
+    </div>
+</div>

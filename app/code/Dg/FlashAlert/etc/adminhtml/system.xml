@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="dg_extensions" translate="label" sortOrder="200">
+            <label>DG Extensions</label>
+        </tab>
+        <section id="flashalert" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Flash Alert Settings</label>
+            <tab>dg_extensions</tab>
+            <resource>Dg_FlashAlert::config</resource>
+
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Configuration</label>
+                <field id="enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Enable Module</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+
+            <group id="design" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Design &amp; Appearance</label>
+                <depends>
+                    <field id="flashalert/general/enabled">1</field>
+                </depends>
+                <field id="background_color" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Background Color</label>
+                    <comment>e.g. #1F2937 or a CSS gradient like linear-gradient(90deg,#ff512f,#dd2476)</comment>
+                </field>
+                <field id="text_color" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Text Color</label>
+                    <comment>e.g. #FFFFFF</comment>
+                </field>
+                <field id="font_size" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Font Size (px)</label>
+                    <comment>e.g. 16</comment>
+                </field>
+                <field id="border_radius" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1" canRestore="1">
+                    <label>Border Radius (px)</label>
+                    <comment>0 for sharp corners, higher for rounder. e.g. 8</comment>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>
